@@ -20,6 +20,10 @@ const AboutForm = lazy(() => import('./admin/AboutForm'));
 const MessagesPage = lazy(() => import('./admin/MessagesPage'));
 const ContactInfoPage = lazy(() => import('./pages/admin/ContactInfoPage'));
 const IntroPage = lazy(() => import('./pages/admin/IntroPage'));
+const ExperienceManager = lazy(() => import('./admin/ExperienceManager'));
+const ExperienceForm = lazy(() => import('./admin/ExperienceForm'));
+const ExperiencesList = lazy(() => import('./admin/ExperiencesList'));
+const SkillsManager = lazy(() => import('./admin/SkillsManager'));
 
 // Route Guard pour les pages protégées
 const ProtectedRoute = lazy(() => import('./components/ProtectedRoute'));
@@ -81,6 +85,26 @@ function App() {
             <Route path="/admin/intro" element={
               <ProtectedRoute>
                 <IntroPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/experiences" element={
+              <ProtectedRoute>
+                <ExperiencesList />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/experiences/new" element={
+              <ProtectedRoute>
+                <ExperienceForm />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/experiences/edit/:id" element={
+              <ProtectedRoute>
+                <ExperienceForm />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/skills" element={
+              <ProtectedRoute>
+                <SkillsManager />
               </ProtectedRoute>
             } />
             

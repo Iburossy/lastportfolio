@@ -31,6 +31,8 @@ app.use('/api/contact', require('./routes/contact.routes'));
 app.use('/api/contact-info', require('./routes/contactInfo.routes'));
 app.use('/api/messages', require('./routes/messages.routes'));
 app.use('/api/intro', require('./routes/intro.routes'));
+app.use('/api/experiences', require('./routes/experience.routes'));
+app.use('/api/skills', require('./routes/skill.routes'));
 
 // Route de test
 app.get('/', (req, res) => {

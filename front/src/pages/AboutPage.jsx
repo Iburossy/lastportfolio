@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { FaUser, FaCode, FaTools, FaGraduationCap, FaServer, FaBriefcase, FaCalendarAlt } from 'react-icons/fa';
+import { FaUser, FaCode, FaTools, FaGraduationCap, FaServer, FaBriefcase, FaCalendarAlt, FaMapMarkerAlt } from 'react-icons/fa';
 import Button from '../components/Button';
 import Loader from '../components/Loader';
 import aboutService from '../services/aboutService';
+import experienceService from '../services/experienceService';
 
 // Styles
 const PageContainer = styled.div`
@@ -194,50 +195,160 @@ const SectionTitle = styled.h2`
 `;
 
 const SkillsContainer = styled.section`
-  background: #f8f9fa;
+  background-color: #fff;
   border-radius: 15px;
   padding: 2rem;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
   margin-bottom: 3rem;
 `;
 
-const SkillsList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+const SkillsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-top: 1.5rem;
 `;
 
-const SkillItem = styled.div`
-  margin-bottom: 1.25rem;
+const SkillCategory = styled.div`
+  margin-bottom: 1.5rem;
+`;
+
+const CategoryTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--primary);
+  display: inline-block;
+`;
+
+const SkillsList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
+`;
+
+const SkillItem = styled.li`
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+  color: var(--text-primary);
   
-  &:last-child {
-    margin-bottom: 0;
+  &:before {
+    content: '•';
+    color: var(--primary);
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+    line-height: 0.75;
   }
 `;
 
-const SkillName = styled.div`
+// Styles pour les expériences professionnelles
+const ExperiencesContainer = styled.section`
+  background-color: #fff;
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+  margin-bottom: 3rem;
+`;
+
+const ExperiencesList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-top: 1.5rem;
+`;
+
+const ExperienceItem = styled.div`
+  position: relative;
+  padding-left: 2rem;
+  padding-bottom: 2rem;
+  border-left: 2px solid var(--primary);
+  
+  &:last-child {
+    padding-bottom: 0;
+    border-left-color: transparent;
+  }
+  
+  &::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 0;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: var(--primary);
+  }
+`;
+
+const ExperienceHeader = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 0.5rem;
-  font-weight: 500;
-  font-size: 1.1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+`;
+
+const ExperienceTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: 600;
   color: var(--text-primary);
+  margin: 0;
 `;
 
-const ProgressBar = styled.div`
-  width: 100%;
-  height: 10px;
-  background-color: #e0e0e0;
-  border-radius: 5px;
-  overflow: hidden;
+const ExperienceCompany = styled.h4`
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--primary);
+  margin: 0.25rem 0;
 `;
 
-const Progress = styled.div`
-  height: 100%;
-  background-color: var(--primary);
-  border-radius: 5px;
-  width: ${props => props.value || 0}%;
-  transition: width 1s ease-in-out;
+const ExperienceDate = styled.div`
+  display: flex;
+  align-items: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  background-color: #f0f4f8;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  
+  svg {
+    margin-right: 0.5rem;
+  }
+`;
+
+const ExperienceDetails = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 0.5rem 0;
+`;
+
+const ExperienceDetail = styled.div`
+  display: flex;
+  align-items: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  
+  svg {
+    margin-right: 0.5rem;
+  }
+`;
+
+const ExperienceDescription = styled.p`
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-top: 0.75rem;
+  white-space: pre-line;
 `;
 
 const ErrorMessage = styled.p`
@@ -254,15 +365,30 @@ const fadeIn = {
 
 const AboutPage = () => {
   const [aboutData, setAboutData] = useState(null);
+  const [experiences, setExperiences] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchAboutData = async () => {
+    const fetchData = async () => {
       try {
-        const response = await aboutService.getAbout();
-        console.log('Réponse complète du backend:', response);
-        setAboutData(response);
+        // Charger les données du profil
+        const aboutResponse = await aboutService.getAbout();
+        console.log('Réponse complète du backend (about):', aboutResponse);
+        setAboutData(aboutResponse);
+        
+        // Charger les expériences professionnelles
+        const experiencesResponse = await experienceService.getAllExperiences();
+        console.log('Réponse complète du backend (experiences):', experiencesResponse);
+        
+        if (experiencesResponse && experiencesResponse.data) {
+          // Trier les expériences par date (plus récentes d'abord)
+          const sortedExperiences = experiencesResponse.data.sort((a, b) => {
+            return new Date(b.startDate) - new Date(a.startDate);
+          });
+          
+          setExperiences(sortedExperiences);
+        }
       } catch (err) {
         console.error('Erreur lors du chargement des données:', err);
         setError('Impossible de charger les informations. Veuillez réessayer plus tard.');
@@ -271,7 +397,7 @@ const AboutPage = () => {
       }
     };
 
-    fetchAboutData();
+    fetchData();
   }, []);
 
   if (loading) {
@@ -381,65 +507,127 @@ const AboutPage = () => {
           </AboutSection>
           
           <SkillsContainer>
-            <SectionTitle>Compétences</SectionTitle>
-            <SkillsList>
+            <SectionTitle>Mes compétences</SectionTitle>
+            <SkillsGrid>
               {Object.entries(skillsByCategory).length > 0 ? 
-                Object.entries(skillsByCategory).flatMap(([category, skills]) => 
-                  skills.map((skill, index) => (
-                    <SkillItem key={`${category}-${index}`}>
-                      <SkillName>
-                        <span>{skill.name || 'dev'}</span>
-                        <span>{skill.level || 80}%</span>
-                      </SkillName>
-                      <ProgressBar>
-                        <Progress value={skill.level || 80} />
-                      </ProgressBar>
-                    </SkillItem>
-                  ))
-                ) : (
-                  // Compétences par défaut si aucune n'est définie
+                Object.entries(skillsByCategory).map(([category, skills]) => (
+                  <SkillCategory key={category}>
+                    <CategoryTitle>{category}</CategoryTitle>
+                    <SkillsList>
+                      {skills.map((skill, index) => (
+                        <SkillItem key={`${category}-${index}`}>
+                          {skill.name}
+                        </SkillItem>
+                      ))}
+                    </SkillsList>
+                  </SkillCategory>
+                )) : (
+                  // Catégories par défaut si aucune n'est définie
                   <>
-                    <SkillItem>
-                      <SkillName>
-                        <span>dev</span>
-                        <span>80%</span>
-                      </SkillName>
-                      <ProgressBar>
-                        <Progress value={80} />
-                      </ProgressBar>
-                    </SkillItem>
-                    <SkillItem>
-                      <SkillName>
-                        <span>web</span>
-                        <span>80%</span>
-                      </SkillName>
-                      <ProgressBar>
-                        <Progress value={80} />
-                      </ProgressBar>
-                    </SkillItem>
-                    <SkillItem>
-                      <SkillName>
-                        <span>mobile</span>
-                        <span>80%</span>
-                      </SkillName>
-                      <ProgressBar>
-                        <Progress value={80} />
-                      </ProgressBar>
-                    </SkillItem>
-                    <SkillItem>
-                      <SkillName>
-                        <span>embarquer</span>
-                        <span>80%</span>
-                      </SkillName>
-                      <ProgressBar>
-                        <Progress value={80} />
-                      </ProgressBar>
-                    </SkillItem>
+                    <SkillCategory>
+                      <CategoryTitle>Frontend</CategoryTitle>
+                      <SkillsList>
+                        <SkillItem>React</SkillItem>
+                        <SkillItem>Flutter</SkillItem>
+                        <SkillItem>HTML5</SkillItem>
+                        <SkillItem>CSS3</SkillItem>
+                        <SkillItem>Bootstrap</SkillItem>
+                        <SkillItem>Tailwind</SkillItem>
+                        <SkillItem>Tkinter</SkillItem>
+                        <SkillItem>Kivy md</SkillItem>
+                        <SkillItem>.Net</SkillItem>
+                      </SkillsList>
+                    </SkillCategory>
+                    
+                    <SkillCategory>
+                      <CategoryTitle>Backend</CategoryTitle>
+                      <SkillsList>
+                        <SkillItem>Node.js</SkillItem>
+                        <SkillItem>Express</SkillItem>
+                        <SkillItem>MongoDB</SkillItem>
+                        <SkillItem>Firebase</SkillItem>
+                        <SkillItem>Laravel</SkillItem>
+                        <SkillItem>Mysql</SkillItem>
+                      </SkillsList>
+                    </SkillCategory>
+                    
+                    <SkillCategory>
+                      <CategoryTitle>DevOps / Cloud / Infrastructure</CategoryTitle>
+                      <SkillsList>
+                        <SkillItem>Google cloid platform</SkillItem>
+                        <SkillItem>Firebase</SkillItem>
+                        <SkillItem>studio 3T</SkillItem>
+                        <SkillItem>rabbitmq</SkillItem>
+                      </SkillsList>
+                    </SkillCategory>
+                    
+                    <SkillCategory>
+                      <CategoryTitle>Outils</CategoryTitle>
+                      <SkillsList>
+                        <SkillItem>Git</SkillItem>
+                        <SkillItem>Android studio</SkillItem>
+                      </SkillsList>
+                    </SkillCategory>
                   </>
                 )
               }
-            </SkillsList>
+            </SkillsGrid>
           </SkillsContainer>
+          
+          <ExperiencesContainer>
+            <SectionTitle>
+              <FaBriefcase style={{ marginRight: '0.5rem' }} />
+              Expériences Professionnelles
+            </SectionTitle>
+            
+            {experiences && experiences.length > 0 ? (
+              <ExperiencesList>
+                {experiences.map((experience, index) => {
+                  // Formater les dates
+                  const startDate = new Date(experience.startDate);
+                  const formattedStartDate = startDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+                  
+                  let formattedEndDate = 'Présent';
+                  if (!experience.current && experience.endDate) {
+                    const endDate = new Date(experience.endDate);
+                    formattedEndDate = endDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+                  }
+                  
+                  return (
+                    <ExperienceItem key={index}>
+                      <ExperienceHeader>
+                        <div>
+                          <ExperienceTitle>{experience.title}</ExperienceTitle>
+                          <ExperienceCompany>{experience.company}</ExperienceCompany>
+                        </div>
+                        <ExperienceDate>
+                          <FaCalendarAlt />
+                          {formattedStartDate} - {formattedEndDate}
+                        </ExperienceDate>
+                      </ExperienceHeader>
+                      
+                      {experience.location && (
+                        <ExperienceDetails>
+                          <ExperienceDetail>
+                            <FaMapMarkerAlt />
+                            {experience.location}
+                          </ExperienceDetail>
+                        </ExperienceDetails>
+                      )}
+                      
+                      {experience.description && (
+                        <ExperienceDescription>
+                          {experience.description}
+                        </ExperienceDescription>
+                      )}
+                    </ExperienceItem>
+                  );
+                })}
+              </ExperiencesList>
+            ) : (
+              <p>Aucune expérience professionnelle n'a été ajoutée.</p>
+            )}
+          </ExperiencesContainer>
         </motion.div>
       ) : (
         <ErrorMessage>Aucune information disponible pour le moment.</ErrorMessage>

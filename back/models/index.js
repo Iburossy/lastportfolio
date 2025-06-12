@@ -5,6 +5,7 @@ const About = require('./about.model');
 const Message = require('./message.model');
 const Contact = require('./contact.model')(sequelize);
 const Intro = require('./intro.model')(sequelize);
+const Experience = require('./experience.model');
 
 // Définir les relations entre les modèles si nécessaire
 // (pas de relations complexes dans ce projet)
@@ -16,5 +17,6 @@ module.exports = {
   About,
   Message,
   Contact,
-  Intro
+  Intro,
+  Experience
 };

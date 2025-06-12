@@ -140,11 +140,11 @@ const ViewAllLink = styled.div`
 const HomePage = () => {
   const [projects, setProjects] = useState([]);
   const [introData, setIntroData] = useState({
-    title: "Bienvenue sur mon Portfolio",
-    subtitle: "Développeur Fullstack passionné par la création d'applications web modernes et performantes.",
+    title: "",
+    subtitle: "",
     description: "",
-    button_text: "En savoir plus",
-    button_link: "/about"
+    button_text: "",
+    button_link: "/"
   });
   const [loading, setLoading] = useState(true);
   const [introLoading, setIntroLoading] = useState(true);
@@ -220,7 +220,7 @@ const HomePage = () => {
                 animate="visible"
                 variants={heroTextVariants}
               >
-                Bonjour, je suis
+                
               </GreetingText>
               <HeroTitle
                 initial="hidden"
@@ -305,7 +305,7 @@ const HomePage = () => {
           <SectionHeader>
             <SectionTitle>Projets Récents</SectionTitle>
             <SectionSubtitle>
-              Découvrez une sélection de mes derniers projets de développement web.
+              
             </SectionSubtitle>
           </SectionHeader>
 

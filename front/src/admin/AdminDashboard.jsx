@@ -11,7 +11,9 @@ import {
   FaEdit,
   FaAddressCard,
   FaHome,
-  FaList
+  FaList,
+  FaBriefcase,
+  FaCode
 } from 'react-icons/fa';
 import Loader from '../components/Loader';
 import Alert from '../components/Alert';
@@ -310,6 +312,12 @@ const AdminDashboard = () => {
           <ActionButton to="/admin/contact-info">
             <FaAddressCard /> Gérer Contacts
           </ActionButton>
+          <ActionButton to="/admin/experiences">
+            <FaBriefcase /> Gérer Expériences
+          </ActionButton>
+          <ActionButton to="/admin/skills">
+            <FaCode /> Gérer Compétences
+          </ActionButton>
           <LogoutButton onClick={handleLogout}>
             <FaSignOutAlt /> Déconnexion
           </LogoutButton>
@@ -380,6 +388,44 @@ const AdminDashboard = () => {
           <StatsFooter>
             <StatsLink to="/admin/about">
               Mettre à jour votre profil
+            </StatsLink>
+          </StatsFooter>
+        </StatsCard>
+        
+        <StatsCard
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.3 }}
+        >
+          <StatsHeader>
+            <StatsIcon $primary>
+              <FaBriefcase />
+            </StatsIcon>
+            <StatsTitle>Expériences</StatsTitle>
+          </StatsHeader>
+          <StatsValue>-</StatsValue>
+          <StatsFooter>
+            <StatsLink to="/admin/experiences">
+              Gérer vos expériences
+            </StatsLink>
+          </StatsFooter>
+        </StatsCard>
+        
+        <StatsCard
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.4 }}
+        >
+          <StatsHeader>
+            <StatsIcon $success>
+              <FaCode />
+            </StatsIcon>
+            <StatsTitle>Compétences</StatsTitle>
+          </StatsHeader>
+          <StatsValue>-</StatsValue>
+          <StatsFooter>
+            <StatsLink to="/admin/skills">
+              Gérer vos compétences
             </StatsLink>
           </StatsFooter>
         </StatsCard>

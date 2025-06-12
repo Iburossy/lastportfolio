@@ -6,6 +6,7 @@ import { FaSave, FaArrowLeft } from 'react-icons/fa';
 import Button from '../components/Button';
 import Alert from '../components/Alert';
 import Loader from '../components/Loader';
+import SkillsManager from './SkillsManager';
 import aboutService from '../services/aboutService';
 
 // Styles
@@ -207,6 +208,7 @@ const AboutForm = () => {
   const [submitting, setSubmitting] = useState(false);
   const [alert, setAlert] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
+  const [skills, setSkills] = useState([]);
   
   const { 
     register, 
@@ -252,6 +254,11 @@ const AboutForm = () => {
           setPreviewImage(`${baseURL}${aboutData.photo_url}`);
           console.log('URL de la photo:', `${baseURL}${aboutData.photo_url}`);
         }
+        
+        // Charger les compétences
+        if (aboutData.skills && Array.isArray(aboutData.skills)) {
+          setSkills(aboutData.skills);
+        }
       } catch (err) {
         console.error('Erreur lors du chargement des données:', err);
         setAlert({
@@ -276,12 +283,6 @@ const AboutForm = () => {
         .split(',')
         .map(specialty => specialty.trim())
         .filter(specialty => specialty);
-      
-      // Créer les compétences au format attendu par le backend
-      const skills = specialties.map(name => ({
-        name,
-        level: 80 // Niveau par défaut
-      }));
       
       // Créer un FormData pour envoyer les données et la photo
       const formData = new FormData();
@@ -478,6 +479,14 @@ const AboutForm = () => {
               <ErrorMessage>{errors.bio.message}</ErrorMessage>
             )}
           </FormField>
+        </FormSection>
+        
+        <FormSection>
+          <SectionTitle>Compétences</SectionTitle>
+          <SkillsManager 
+            skills={skills} 
+            onChange={setSkills} 
+          />
         </FormSection>
         
         <SaveButton 

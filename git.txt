@@ -5,3 +5,5 @@ git commit -m "first commit"
 git branch -M main
 git remote add origin https://github.com/Iburossy/lastportfolio.git
 git push -u origin main
+
+sur ma page "about", je veux que mes competence s'y affiche comme sur l'image
